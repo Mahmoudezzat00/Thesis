@@ -1067,11 +1067,11 @@ const data: Data = {
     {
       title: 'About Us',
       slug: 'about-us',
-      content: `Welcome to [Your Store Name], your trusted destination for quality products and exceptional service. Our journey began with a mission to bring you the best shopping experience by offering a wide range of products at competitive prices, all in one convenient platform.
+      content: `Welcome to SmartShop Thesis, an academic ecommerce platform designed to demonstrate how modern online stores combine product discovery, secure checkout, customer accounts, and administrative decision support.
 
-At [Your Store Name], we prioritize customer satisfaction and innovation. Our team works tirelessly to curate a diverse selection of items, from everyday essentials to exclusive deals, ensuring there's something for everyone. We also strive to make your shopping experience seamless with fast shipping, secure payments, and excellent customer support.
+The project focuses on a complete shopping workflow for customers and a structured management experience for administrators. It includes multilingual browsing, product reviews, order tracking, payment integrations, and dashboard reporting.
 
-As we continue to grow, our commitment to quality and service remains unwavering. Thank you for choosing [Your Store Name]—we look forward to being a part of your journey and delivering value every step of the way.`,
+As a thesis system, SmartShop Thesis is built to be extended with recommendation logic, inventory insights, and customer-behavior analysis. The current version provides the foundation for those research-driven improvements.`,
       isPublished: true,
     },
     {
@@ -1122,7 +1122,7 @@ Your data is safeguarded through robust security measures to prevent unauthorize
     {
       title: 'Conditions of Use',
       slug: 'conditions-of-use',
-      content: `Welcome to [Ecommerce Website Name]. By accessing or using our website, you agree to comply with and be bound by the following terms and conditions. These terms govern your use of our platform, including browsing, purchasing products, and interacting with any content or services provided. You must be at least 18 years old or have the consent of a parent or guardian to use this website. Any breach of these terms may result in the termination of your access to our platform.
+      content: `Welcome to SmartShop Thesis. By accessing or using this website, you agree to comply with and be bound by the following terms and conditions. These terms govern your use of the platform, including browsing, purchasing products, and interacting with any content or services provided. You must be at least 18 years old or have the consent of a parent or guardian to use this website. Any breach of these terms may result in the termination of your access to the platform.
 
 We strive to ensure all product descriptions, pricing, and availability information on our website are accurate. However, errors may occur, and we reserve the right to correct them without prior notice. All purchases are subject to our return and refund policy. By using our site, you acknowledge that your personal information will be processed according to our privacy policy, ensuring your data is handled securely and responsibly. Please review these terms carefully before proceeding with any transactions.
 `,
@@ -1131,7 +1131,7 @@ We strive to ensure all product descriptions, pricing, and availability informat
     {
       title: 'Customer Service',
       slug: 'customer-service',
-      content: `At [Your Store Name], our customer service team is here to ensure you have the best shopping experience. Whether you need assistance with orders, product details, or returns, we are committed to providing prompt and helpful support.
+      content: `At SmartShop Thesis, customer service is modeled as part of the complete ecommerce lifecycle. Whether a shopper needs assistance with orders, product details, or returns, the platform is structured to support clear communication and issue resolution.
 
 If you have questions or concerns, please reach out to us through our multiple contact options:
 - **Email:** support@example.com
@@ -1251,16 +1251,16 @@ We also provide helpful resources such as order tracking, product guides, and FA
         pageSize: 9,
       },
       site: {
-        name: 'Ecommerce Storefront',
+        name: 'SmartShop Thesis',
         description:
-          'A sample ecommerce website built with Next.js, Tailwind CSS, and MongoDB.',
-        keywords: 'Ecommerce, Next.js, Tailwind CSS, MongoDB',
+          'An analytics-focused ecommerce thesis project built with Next.js, Tailwind CSS, and MongoDB.',
+        keywords: 'Ecommerce, Thesis Project, Next.js, Tailwind CSS, MongoDB',
         url: 'http://localhost:3000',
         logo: '/icons/logo.svg',
-        slogan: 'Spend less, enjoy more.',
-        author: 'Store Owner',
-        copyright: '2026 Ecommerce Storefront. All rights reserved.',
-        email: 'admin@example.com',
+        slogan: 'Smarter shopping, clearer decisions.',
+        author: 'Mahmoud Ezzat',
+        copyright: '2026 SmartShop Thesis. All rights reserved.',
+        email: 'support@smartshop.local',
         address: '123, Main Street, Anytown, CA, Zip 12345',
         phone: '+1 (123) 456-7890',
       },

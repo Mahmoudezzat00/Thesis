@@ -169,6 +169,67 @@ export async function getProductsByTag({
   return JSON.parse(JSON.stringify(products)) as IProduct[]
 }
 
+export async function getCommerceInsightSummary() {
+  await connectToDatabase()
+
+  const [summary] = await Product.aggregate([
+    { $match: { isPublished: true } },
+    {
+      $group: {
+        _id: null,
+        totalProducts: { $sum: 1 },
+        totalSales: { $sum: '$numSales' },
+        averageRating: { $avg: '$avgRating' },
+        lowStockProducts: {
+          $sum: {
+            $cond: [{ $lte: ['$countInStock', 10] }, 1, 0],
+          },
+        },
+      },
+    },
+  ])
+
+  const [topCategory] = await Product.aggregate([
+    { $match: { isPublished: true } },
+    {
+      $group: {
+        _id: '$category',
+        sales: { $sum: '$numSales' },
+        products: { $sum: 1 },
+      },
+    },
+    { $sort: { sales: -1 } },
+    { $limit: 1 },
+  ])
+
+  const topProduct = await Product.findOne({ isPublished: true })
+    .sort({ numSales: -1 })
+    .select('name numSales avgRating slug')
+    .lean()
+
+  return {
+    totalProducts: summary?.totalProducts || 0,
+    totalSales: summary?.totalSales || 0,
+    averageRating: Number((summary?.averageRating || 0).toFixed(1)),
+    lowStockProducts: summary?.lowStockProducts || 0,
+    topCategory: topCategory
+      ? {
+          name: topCategory._id as string,
+          sales: topCategory.sales as number,
+          products: topCategory.products as number,
+        }
+      : null,
+    topProduct: topProduct
+      ? {
+          name: topProduct.name,
+          sales: topProduct.numSales,
+          rating: topProduct.avgRating,
+          href: `/product/${topProduct.slug}`,
+        }
+      : null,
+  }
+}
+
 // GET ONE PRODUCT BY SLUG
 export async function getProductBySlug(slug: string) {
   await connectToDatabase()

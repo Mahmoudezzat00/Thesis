@@ -1,10 +1,10 @@
 
-NEXT_PUBLIC_APP_NAME=Amazona
-NEXT_PUBLIC_APP_DESCRIPTION=An Amazon clone built with Next.js, MongoDB, Shadcn
+NEXT_PUBLIC_APP_NAME=SmartShop Thesis
+NEXT_PUBLIC_APP_DESCRIPTION=An analytics-focused ecommerce thesis project built with Next.js, MongoDB, and Tailwind CSS
 NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 
 # Database
-MONGODB_URI=mongodb://localhost/nextjs-amazona
+MONGODB_URI=mongodb://localhost/smartshop-thesis
  
 
 # $ npx auth secret
@@ -13,6 +13,7 @@ AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
 
 RESEND_API_KEY=
+SENDER_NAME=SmartShop Thesis
 SENDER_EMAIL=
 
 # UPLOADTHING
