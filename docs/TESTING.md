@@ -28,6 +28,7 @@
 ### Admin
 
 - Open the admin dashboard.
+- Open Product Intelligence and confirm scores, category summaries, and restock signals load.
 - Create, update, and delete a product.
 - View and update orders.
 - View users and edit a user role/profile.
@@ -38,6 +39,7 @@
 
 - Run `npm run seed` and confirm users, products, reviews, orders, settings, and web pages are recreated.
 - Confirm homepage metrics change when product sales, stock, or published status changes.
+- Confirm Product Intelligence scores change when product sales, review counts, ratings, or stock values change.
 
 ## Automated Testing Backlog
 

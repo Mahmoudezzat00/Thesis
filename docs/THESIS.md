@@ -43,6 +43,8 @@ The first custom thesis-oriented feature is the Commerce Intelligence Snapshot. 
 
 This creates a foundation for deeper thesis work, such as recommendation algorithms, stock-risk detection, product-performance scoring, and admin decision support.
 
+The second thesis-oriented feature is the Admin Product Intelligence page. It ranks products using an explainable performance score and highlights restock-risk signals. This makes the project more than a CRUD ecommerce store because administrators can use the system to reason about inventory and product strategy.
+
 ## Suggested Research Questions
 
 - How can ecommerce platforms improve product discovery using browsing and sales signals?

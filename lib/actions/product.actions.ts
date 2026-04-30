@@ -230,6 +230,109 @@ export async function getCommerceInsightSummary() {
   }
 }
 
+export async function getProductIntelligenceReport() {
+  await connectToDatabase()
+
+  const products = await Product.find({ isPublished: true })
+    .select(
+      'name slug category brand price countInStock avgRating numReviews numSales'
+    )
+    .lean()
+
+  const maxSales = Math.max(...products.map((product) => product.numSales), 1)
+  const maxReviews = Math.max(
+    ...products.map((product) => product.numReviews),
+    1
+  )
+
+  const scoredProducts = products
+    .map((product) => {
+      const salesScore = (product.numSales / maxSales) * 40
+      const ratingScore = (product.avgRating / 5) * 25
+      const reviewScore = (product.numReviews / maxReviews) * 15
+      const stockScore =
+        product.countInStock === 0
+          ? 0
+          : product.countInStock <= 5
+            ? 6
+            : product.countInStock <= 10
+              ? 12
+              : 20
+      const performanceScore = Math.round(
+        salesScore + ratingScore + reviewScore + stockScore
+      )
+      const restockRisk =
+        product.numSales >= maxSales * 0.6 && product.countInStock <= 10
+          ? 'High'
+          : product.numSales >= maxSales * 0.35 && product.countInStock <= 15
+            ? 'Medium'
+            : 'Low'
+
+      return {
+        _id: product._id.toString(),
+        name: product.name,
+        slug: product.slug,
+        href: `/product/${product.slug}`,
+        category: product.category,
+        brand: product.brand,
+        price: product.price,
+        countInStock: product.countInStock,
+        avgRating: product.avgRating,
+        numReviews: product.numReviews,
+        numSales: product.numSales,
+        performanceScore,
+        restockRisk,
+      }
+    })
+    .sort((a, b) => b.performanceScore - a.performanceScore)
+
+  const categorySummary = Object.values(
+    scoredProducts.reduce<
+      Record<
+        string,
+        {
+          category: string
+          products: number
+          sales: number
+          averageScore: number
+          scoreTotal: number
+        }
+      >
+    >((acc, product) => {
+      acc[product.category] ||= {
+        category: product.category,
+        products: 0,
+        sales: 0,
+        averageScore: 0,
+        scoreTotal: 0,
+      }
+      acc[product.category].products += 1
+      acc[product.category].sales += product.numSales
+      acc[product.category].scoreTotal += product.performanceScore
+      acc[product.category].averageScore = Math.round(
+        acc[product.category].scoreTotal / acc[product.category].products
+      )
+      return acc
+    }, {})
+  ).sort((a, b) => b.averageScore - a.averageScore)
+
+  return {
+    products: scoredProducts,
+    topProducts: scoredProducts.slice(0, 8),
+    restockRisks: scoredProducts
+      .filter((product) => product.restockRisk !== 'Low')
+      .sort((a, b) => a.countInStock - b.countInStock)
+      .slice(0, 8),
+    categorySummary,
+    scoreWeights: [
+      { label: 'Sales velocity', value: '40%' },
+      { label: 'Average rating', value: '25%' },
+      { label: 'Review volume', value: '15%' },
+      { label: 'Stock health', value: '20%' },
+    ],
+  }
+}
+
 // GET ONE PRODUCT BY SLUG
 export async function getProductBySlug(slug: string) {
   await connectToDatabase()

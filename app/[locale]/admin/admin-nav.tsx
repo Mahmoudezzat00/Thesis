@@ -16,6 +16,10 @@ const links = [
     href: '/admin/products',
   },
   {
+    title: 'Intelligence',
+    href: '/admin/intelligence',
+  },
+  {
     title: 'Orders',
     href: '/admin/orders',
   },

@@ -49,6 +49,10 @@ Key collections include:
 
 The homepage includes a server-rendered analytics module powered by `getCommerceInsightSummary` in `lib/actions/product.actions.ts`. It aggregates product data from MongoDB and displays operational metrics that can later support deeper analytics and recommendation features.
 
+## Thesis Feature: Product Intelligence
+
+The admin section includes `/admin/intelligence`, which uses `getProductIntelligenceReport` in `lib/actions/product.actions.ts`. The report calculates product-performance scores, category strength, and restock-risk signals from published product data. This feature is intentionally implemented as an explainable scoring model so it can be described and evaluated in the thesis documentation.
+
 ## Deployment View
 
 For production, the application needs:

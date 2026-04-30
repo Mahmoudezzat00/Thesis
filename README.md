@@ -15,6 +15,7 @@ The goal of this project is to demonstrate how a modern ecommerce platform can s
 - Email workflow structure for receipts and review reminders.
 - Seeded MongoDB data for local testing and demonstration.
 - Homepage Commerce Intelligence Snapshot for thesis-specific analytics positioning.
+- Admin Product Intelligence page with explainable product-performance and restock-risk scoring.
 
 ## Tech Stack
 
@@ -71,6 +72,7 @@ Use seeded accounts only for development and demonstration. Production deploymen
 
 - [Thesis Overview](./docs/THESIS.md)
 - [System Architecture](./docs/ARCHITECTURE.md)
+- [Product Intelligence Method](./docs/PRODUCT_INTELLIGENCE.md)
 - [Testing Plan](./docs/TESTING.md)
 
 ## Scripts
