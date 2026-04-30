@@ -16,6 +16,7 @@ The goal of this project is to demonstrate how a modern ecommerce platform can s
 - Seeded MongoDB data for local testing and demonstration.
 - Homepage Commerce Intelligence Snapshot for thesis-specific analytics positioning.
 - Admin Product Intelligence page with explainable product-performance and restock-risk scoring.
+- Customer-facing Smart Recommendations ranked by browsing interest, demand, ratings, reviews, and stock.
 
 ## Tech Stack
 
@@ -72,7 +73,9 @@ Use seeded accounts only for development and demonstration. Production deploymen
 
 - [Thesis Overview](./docs/THESIS.md)
 - [System Architecture](./docs/ARCHITECTURE.md)
+- [Brand Identity](./docs/BRANDING.md)
 - [Product Intelligence Method](./docs/PRODUCT_INTELLIGENCE.md)
+- [Recommendation Method](./docs/RECOMMENDATIONS.md)
 - [Testing Plan](./docs/TESTING.md)
 
 ## Scripts

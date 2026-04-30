@@ -29,6 +29,7 @@ The current implementation includes:
 - Email integration points for receipts and review reminders.
 - Seeded demonstration data.
 - Homepage Commerce Intelligence Snapshot.
+- Original SmartShop Thesis branding with a custom logo and blue analytics-focused theme.
 
 ## Original Thesis Contribution
 
@@ -45,6 +46,8 @@ This creates a foundation for deeper thesis work, such as recommendation algorit
 
 The second thesis-oriented feature is the Admin Product Intelligence page. It ranks products using an explainable performance score and highlights restock-risk signals. This makes the project more than a CRUD ecommerce store because administrators can use the system to reason about inventory and product strategy.
 
+The third thesis-oriented feature is Smart Recommendations. It uses local browsing history and product-performance data to rank products for customers. The feature displays recommendation reasons so the system remains explainable rather than acting like a black box.
+
 ## Suggested Research Questions
 
 - How can ecommerce platforms improve product discovery using browsing and sales signals?
@@ -54,7 +57,7 @@ The second thesis-oriented feature is the Admin Product Intelligence page. It ra
 
 ## Future Work
 
-- Personalized recommendations based on browsing history and order history.
+- Personalized recommendations that also use order history.
 - Inventory alerts for low-stock and high-demand products.
 - Product-performance score combining sales, reviews, rating, and stock.
 - Admin export reports for products, orders, and users.

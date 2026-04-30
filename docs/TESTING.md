@@ -5,6 +5,7 @@
 ### Storefront
 
 - Open the home page and confirm carousel, categories, product sections, and Commerce Intelligence Snapshot load.
+- Visit product detail pages, return home, and confirm Smart Recommendations adapt to browsing history.
 - Search for a product by keyword.
 - Filter products by category, rating, price, and tag.
 - Open a product details page.
@@ -40,6 +41,7 @@
 - Run `npm run seed` and confirm users, products, reviews, orders, settings, and web pages are recreated.
 - Confirm homepage metrics change when product sales, stock, or published status changes.
 - Confirm Product Intelligence scores change when product sales, review counts, ratings, or stock values change.
+- Confirm recommendation scores change when browsing-history categories change.
 
 ## Automated Testing Backlog
 

@@ -1247,7 +1247,7 @@ We also provide helpful resources such as order tracking, product guides, and FA
         freeShippingMinPrice: 35,
         isMaintenanceMode: false,
         defaultTheme: 'Light',
-        defaultColor: 'Gold',
+        defaultColor: 'Blue',
         pageSize: 9,
       },
       site: {

@@ -53,6 +53,10 @@ The homepage includes a server-rendered analytics module powered by `getCommerce
 
 The admin section includes `/admin/intelligence`, which uses `getProductIntelligenceReport` in `lib/actions/product.actions.ts`. The report calculates product-performance scores, category strength, and restock-risk signals from published product data. This feature is intentionally implemented as an explainable scoring model so it can be described and evaluated in the thesis documentation.
 
+## Thesis Feature: Smart Recommendations
+
+The storefront includes a client-side Smart Recommendations module powered by `/api/products/recommendations`. The module reads local browsing-history categories, excludes already viewed products, and ranks catalog items using category affinity, sales, rating, review volume, and stock availability. Recommendation reasons are returned with each product to keep the feature explainable for users and evaluators.
+
 ## Deployment View
 
 For production, the application needs:
