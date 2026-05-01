@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import {
   PayPalButtons,
   PayPalScriptProvider,
@@ -9,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
 import {
   approvePayPalOrder,
+  confirmDemoOnlinePayment,
   createPayPalOrder,
 } from '@/lib/actions/order.actions'
 import { IOrder } from '@/lib/db/models/order.model'
@@ -29,6 +31,22 @@ const stripePromise =
   !stripePublishableKey.includes('dev_')
     ? loadStripe(stripePublishableKey)
     : null
+
+const isKnownPayPalSdkNoise = (value: unknown) => {
+  if (value instanceof Error) {
+    return (
+      value.message.includes('paypal_js_sdk_v5_unhandled_exception') ||
+      Boolean(value.stack?.includes('paypal.com/sdk/js'))
+    )
+  }
+
+  if (typeof value === 'string') {
+    return value.includes('paypal_js_sdk_v5_unhandled_exception')
+  }
+
+  return false
+}
+
 export default function OrderDetailsForm({
   order,
   paypalClientId,
@@ -42,6 +60,7 @@ export default function OrderDetailsForm({
   paymentConfig: {
     isPayPalConfigured: boolean
     isStripeConfigured: boolean
+    enableDemoPayments: boolean
     message: string
   }
 }) {
@@ -58,6 +77,35 @@ export default function OrderDetailsForm({
     isPaid,
   } = order
   const { toast } = useToast()
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'development' || paymentMethod !== 'PayPal') {
+      return
+    }
+
+    const originalConsoleError = console.error
+    console.error = (...args) => {
+      if (args.some(isKnownPayPalSdkNoise)) return
+      originalConsoleError(...args)
+    }
+
+    const handleWindowError = (event: ErrorEvent) => {
+      if (
+        isKnownPayPalSdkNoise(event.error) ||
+        event.message.includes('paypal_js_sdk_v5_unhandled_exception') ||
+        event.filename.includes('paypal.com/sdk/js')
+      ) {
+        event.preventDefault()
+      }
+    }
+
+    window.addEventListener('error', handleWindowError)
+
+    return () => {
+      console.error = originalConsoleError
+      window.removeEventListener('error', handleWindowError)
+    }
+  }, [paymentMethod])
 
   if (isPaid) {
     redirect(`/account/orders/${order._id}`)
@@ -98,6 +146,19 @@ export default function OrderDetailsForm({
   }
   const handleApprovePayPalOrder = async (data: { orderID: string }) => {
     const res = await approvePayPalOrder(order._id, data)
+    toast({
+      description: res.message,
+      variant: res.success ? 'default' : 'destructive',
+    })
+    if (res.success) {
+      window.setTimeout(() => {
+        router.refresh()
+        router.push(`/account/orders/${order._id}`)
+      }, 800)
+    }
+  }
+  const handleConfirmDemoPayment = async () => {
+    const res = await confirmDemoOnlinePayment(order._id)
     toast({
       description: res.message,
       variant: res.success ? 'default' : 'destructive',
@@ -153,11 +214,23 @@ export default function OrderDetailsForm({
 
             {!isPaid && paymentMethod === 'PayPal' && paymentConfig.isPayPalConfigured && (
               <div>
-                <PayPalScriptProvider options={{ clientId: paypalClientId }}>
+                <PayPalScriptProvider
+                  options={{
+                    clientId: paypalClientId,
+                    currency: 'USD',
+                    intent: 'capture',
+                  }}
+                >
                   <PrintLoadingState />
                   <PayPalButtons
                     createOrder={handleCreatePayPalOrder}
                     onApprove={handleApprovePayPalOrder}
+                    onCancel={() =>
+                      toast({
+                        description: 'PayPal payment was cancelled.',
+                        variant: 'destructive',
+                      })
+                    }
                     onError={(error) =>
                       toast({
                         description:
@@ -195,6 +268,24 @@ export default function OrderDetailsForm({
                 }
               />
             )}
+            {!isPaid &&
+              ['Stripe', 'PayPal'].includes(paymentMethod) &&
+              paymentConfig.enableDemoPayments && (
+                <div className='rounded-md border border-dashed p-3 text-sm'>
+                  <p className='font-medium'>Demo payment confirmation</p>
+                  <p className='mt-1 text-muted-foreground'>
+                    Use this for thesis testing when Stripe or PayPal sandbox
+                    payment cannot be completed.
+                  </p>
+                  <Button
+                    className='mt-3 w-full rounded-full'
+                    variant='secondary'
+                    onClick={handleConfirmDemoPayment}
+                  >
+                    Confirm Demo {paymentMethod} Payment
+                  </Button>
+                </div>
+              )}
 
             {!isPaid && paymentMethod === 'Cash On Delivery' && (
               <Button

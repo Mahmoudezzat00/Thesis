@@ -48,6 +48,9 @@ const CheckoutPaymentPage = async (props: {
   const isPayPalConfigured =
     hasUsablePaymentValue(process.env.PAYPAL_CLIENT_ID) &&
     hasUsablePaymentValue(process.env.PAYPAL_APP_SECRET)
+  const enableDemoPayments =
+    process.env.NODE_ENV !== 'production' ||
+    process.env.ENABLE_DEMO_PAYMENTS === 'true'
 
   if (order.paymentMethod === 'Stripe' && !order.isPaid) {
     if (isStripeConfigured) {
@@ -77,6 +80,7 @@ const CheckoutPaymentPage = async (props: {
       paymentConfig={{
         isPayPalConfigured,
         isStripeConfigured,
+        enableDemoPayments,
         message: paymentConfigMessage,
       }}
       isAdmin={session?.user?.role === 'Admin' || false}

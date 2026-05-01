@@ -17,6 +17,7 @@ import {
 import { formatCurrency } from '@/lib/utils'
 import { IOrder } from '@/lib/db/models/order.model'
 import { getSetting } from '@/lib/actions/setting.actions'
+import { getEmailBaseUrl, getEmailImageUrl } from './url'
 
 type OrderInformationProps = {
   order: IOrder
@@ -68,6 +69,7 @@ export default async function PurchaseReceiptEmail({
   order,
 }: OrderInformationProps) {
   const { site } = await getSetting()
+  const baseUrl = getEmailBaseUrl(site.url)
   return (
     <Html>
       <Preview>View order receipt</Preview>
@@ -106,21 +108,17 @@ export default async function PurchaseReceiptEmail({
               {order.items.map((item) => (
                 <Row key={item.product} className='mt-8'>
                   <Column className='w-20'>
-                    <Link href={`${site.url}/product/${item.slug}`}>
+                    <Link href={`${baseUrl}/product/${item.slug}`}>
                       <Img
                         width='80'
                         alt={item.name}
                         className='rounded'
-                        src={
-                          item.image.startsWith('/')
-                            ? `${site.url}${item.image}`
-                            : item.image
-                        }
+                        src={getEmailImageUrl(item.image, site.url)}
                       />
                     </Link>
                   </Column>
                   <Column className='align-top'>
-                    <Link href={`${site.url}/product/${item.slug}`}>
+                    <Link href={`${baseUrl}/product/${item.slug}`}>
                       <Text className='mx-2 my-0'>
                         {item.name} x {item.quantity}
                       </Text>

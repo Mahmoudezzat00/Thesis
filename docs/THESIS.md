@@ -31,6 +31,100 @@ The current implementation includes:
 - Admin-only commerce intelligence and product-performance reporting.
 - Original SmartShop Thesis branding with a custom logo and blue analytics-focused theme.
 
+## Installation And Startup
+
+### Prerequisites
+
+The application requires:
+
+- Node.js 20 or later.
+- npm.
+- Git.
+- MongoDB, either installed locally or provided through a MongoDB Atlas connection string.
+
+Optional services can be configured for the full feature set:
+
+- Google Cloud OAuth credentials for Google sign-in.
+- Resend API key for order and receipt emails.
+- Stripe test keys for card payment testing.
+- PayPal sandbox credentials for PayPal payment testing.
+- UploadThing token for image uploads.
+
+### Setup Steps
+
+1. Clone the repository:
+
+   ```shell
+   git clone https://github.com/Mahmoudezzat00/Thesis.git
+   cd Thesis
+   ```
+
+2. Install dependencies:
+
+   ```shell
+   npm install --legacy-peer-deps
+   ```
+
+3. Create the local environment file:
+
+   ```shell
+   cp .example-env .env.local
+   ```
+
+4. Generate an authentication secret:
+
+   ```shell
+   npx auth secret
+   ```
+
+5. Add the required values to `.env.local`:
+
+   ```env
+   NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+   EMAIL_PUBLIC_BASE_URL=https://your-public-demo-url.example
+   EMAIL_IMAGE_BASE_URL=https://raw.githubusercontent.com/Mahmoudezzat00/Thesis/main/public
+   MONGODB_URI=mongodb://localhost/smartshop-thesis
+   AUTH_SECRET=your-generated-auth-secret
+   ```
+
+   These values are enough to run the main local demo with email/password sign-in and Cash On Delivery checkout. Third-party services such as Google, Resend, Stripe, PayPal, and UploadThing require their own credentials.
+
+   `EMAIL_PUBLIC_BASE_URL` is needed when testing real sent emails with product images. Email clients cannot load product images from `localhost`, so this value should point to a deployed HTTPS site or an HTTPS tunnel.
+   For seeded demo products, `EMAIL_IMAGE_BASE_URL` can point to the repository's public image folder on GitHub.
+
+6. Start MongoDB locally, or confirm that the MongoDB Atlas URI in `.env.local` is reachable.
+
+7. Seed the database:
+
+   ```shell
+   npm run seed
+   ```
+
+8. Start the development server:
+
+   ```shell
+   npm run dev
+   ```
+
+   For Stripe card-form testing over HTTPS, start the server with:
+
+   ```shell
+   npm run dev:https
+   ```
+
+9. Open the application:
+
+   ```text
+   http://localhost:3000
+   ```
+
+10. Sign in with the default seeded admin account:
+
+    ```text
+    Email: admin@example.com
+    Password: 123456
+    ```
+
 ## Original Thesis Contribution
 
 The first custom thesis-oriented feature is the admin commerce intelligence module. It aggregates live product data and presents:

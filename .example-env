@@ -2,6 +2,12 @@
 NEXT_PUBLIC_APP_NAME=SmartShop Thesis
 NEXT_PUBLIC_APP_DESCRIPTION=An analytics-focused ecommerce thesis project built with Next.js, MongoDB, and Tailwind CSS
 NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+# Public HTTPS URL used in emails for product links and images.
+# For local email testing, use a deployed URL or an HTTPS tunnel such as ngrok.
+EMAIL_PUBLIC_BASE_URL=
+# Optional separate public image base. Useful for local demos with seeded images:
+# https://raw.githubusercontent.com/Mahmoudezzat00/Thesis/main/public
+EMAIL_IMAGE_BASE_URL=
 
 # Database
 MONGODB_URI=mongodb://localhost/smartshop-thesis
@@ -32,3 +38,8 @@ PAYPAL_APP_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
+
+# Optional: only use for local/thesis demos. In development, demo payment
+# confirmation is available automatically. Set to true only if a deployed demo
+# must show mock Stripe/PayPal payment completion.
+ENABLE_DEMO_PAYMENTS=

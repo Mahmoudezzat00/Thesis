@@ -18,6 +18,7 @@ import {
 import { formatCurrency } from '@/lib/utils'
 import { IOrder } from '@/lib/db/models/order.model'
 import { getSetting } from '@/lib/actions/setting.actions'
+import { getEmailBaseUrl, getEmailImageUrl } from './url'
 
 type OrderInformationProps = {
   order: IOrder
@@ -69,6 +70,7 @@ export default async function AskReviewOrderItemsEmail({
   order,
 }: OrderInformationProps) {
   const { site } = await getSetting()
+  const baseUrl = getEmailBaseUrl(site.url)
   return (
     <Html>
       <Preview>Review Order Items</Preview>
@@ -107,21 +109,17 @@ export default async function AskReviewOrderItemsEmail({
               {order.items.map((item) => (
                 <Row key={item.product} className='mt-8'>
                   <Column className='w-20'>
-                    <Link href={`${site.url}/product/${item.slug}`}>
+                    <Link href={`${baseUrl}/product/${item.slug}`}>
                       <Img
                         width='80'
                         alt={item.name}
                         className='rounded'
-                        src={
-                          item.image.startsWith('/')
-                            ? `${site.url}${item.image}`
-                            : item.image
-                        }
+                        src={getEmailImageUrl(item.image, site.url)}
                       />
                     </Link>
                   </Column>
                   <Column className='align-top'>
-                    <Link href={`${site.url}/product/${item.slug}`}>
+                    <Link href={`${baseUrl}/product/${item.slug}`}>
                       <Text className='mx-2 my-0'>
                         {item.name} x {item.quantity}
                       </Text>
@@ -129,7 +127,7 @@ export default async function AskReviewOrderItemsEmail({
                   </Column>
                   <Column align='right' className='align-top '>
                     <Button
-                      href={`${site.url}/product/${item.slug}#reviews`}
+                      href={`${baseUrl}/product/${item.slug}#reviews`}
                       className='text-center bg-blue-500 hover:bg-blue-700 text-white   py-2 px-4 rounded'
                     >
                       Review this product

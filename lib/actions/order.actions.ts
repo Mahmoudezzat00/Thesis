@@ -148,6 +148,79 @@ export async function updateOrderToPaidByStripe(
     return { success: false, message: formatError(err) }
   }
 }
+
+export async function confirmDemoOnlinePayment(orderId: string) {
+  try {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      process.env.ENABLE_DEMO_PAYMENTS !== 'true'
+    ) {
+      throw new Error('Demo payments are disabled in production')
+    }
+
+    await connectToDatabase()
+    const session = await auth()
+    if (!session) throw new Error('User not authenticated')
+
+    const order = await Order.findById(orderId).populate<{
+      user: { email: string; name: string }
+    }>('user', 'name email')
+    if (!order) throw new Error('Order not found')
+
+    const orderUser = order.user as { _id?: unknown; email?: string } | string
+    const orderUserId =
+      typeof orderUser === 'object' && orderUser._id
+        ? orderUser._id.toString()
+        : orderUser.toString()
+    const isOrderOwner = orderUserId === session.user.id
+    const isAdmin = session.user.role === 'Admin'
+    if (!isOrderOwner && !isAdmin) throw new Error('Not authorized')
+
+    if (!['Stripe', 'PayPal'].includes(order.paymentMethod)) {
+      throw new Error('Demo payment is only available for Stripe and PayPal')
+    }
+
+    if (order.isPaid) {
+      return {
+        success: true,
+        message: 'Order is already paid',
+      }
+    }
+
+    const paidAt = new Date()
+    const provider = order.paymentMethod
+    order.isPaid = true
+    order.paidAt = paidAt
+    order.paymentResult = {
+      id: `${provider.toLowerCase()}_demo_${order._id}_${paidAt.getTime()}`,
+      status: provider === 'Stripe' ? 'succeeded' : 'COMPLETED',
+      email_address:
+        typeof orderUser === 'object' && orderUser.email ? orderUser.email : '',
+      pricePaid: order.totalPrice.toFixed(2),
+    }
+
+    await order.save()
+    if (!process.env.MONGODB_URI?.startsWith('mongodb://localhost'))
+      await updateProductStock(order._id)
+
+    try {
+      if (typeof orderUser === 'object' && orderUser.email) {
+        await sendPurchaseReceipt({ order })
+      }
+    } catch (emailError) {
+      console.log('demo payment receipt email error', emailError)
+    }
+
+    revalidatePath(`/account/orders/${orderId}`)
+    revalidatePath(`/checkout/${orderId}`)
+    return {
+      success: true,
+      message: `${provider} demo payment confirmed`,
+    }
+  } catch (err) {
+    return { success: false, message: formatError(err) }
+  }
+}
 const updateProductStock = async (orderId: string) => {
   const session = await mongoose.connection.startSession()
 
@@ -334,7 +407,8 @@ export async function approvePayPalOrder(
       status: captureData.status,
       email_address: captureData.payer?.email_address || '',
       pricePaid:
-        captureData.purchase_units[0]?.payments?.captures[0]?.amount?.value,
+        captureData.purchase_units[0]?.payments?.captures[0]?.amount?.value ||
+        order.totalPrice.toFixed(2),
     }
     await order.save()
     if (!process.env.MONGODB_URI?.startsWith('mongodb://localhost'))

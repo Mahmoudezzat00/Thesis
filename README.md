@@ -14,7 +14,7 @@ The goal of this project is to demonstrate how a modern ecommerce platform can s
 - Payment integration structure for Stripe and PayPal.
 - Email workflow structure for receipts and review reminders.
 - Seeded MongoDB data for local testing and demonstration.
-- Homepage Commerce Intelligence Snapshot for thesis-specific analytics positioning.
+- Admin-only commerce intelligence for thesis-specific analytics positioning.
 - Admin Product Intelligence page with explainable product-performance and restock-risk scoring.
 - Customer-facing Smart Recommendations ranked by browsing interest, demand, ratings, reviews, and stock.
 
@@ -28,7 +28,23 @@ The goal of this project is to demonstrate how a modern ecommerce platform can s
 - **Uploads and Email:** UploadThing and Resend.
 - **Internationalization:** next-intl.
 
-## Local Setup
+## Installation And Startup
+
+### Prerequisites
+
+Before running the application, install:
+
+- Node.js 20 or later.
+- npm.
+- MongoDB running locally, or a MongoDB Atlas connection string.
+- Git.
+
+Optional service accounts are needed only for external integrations:
+
+- Google Cloud OAuth credentials for Google sign-in.
+- Resend API key for email.
+- Stripe test keys for card payments.
+- PayPal sandbox credentials for PayPal payments.
 
 1. Install dependencies:
 
@@ -36,27 +52,64 @@ The goal of this project is to demonstrate how a modern ecommerce platform can s
    npm install --legacy-peer-deps
    ```
 
-2. Create a local environment file:
+2. Create a local environment file from the example file:
 
    ```shell
    cp .example-env .env.local
    ```
 
-3. Update `.env.local` with your MongoDB URI and service keys.
+3. Generate an Auth.js secret:
 
-4. Seed the database:
+   ```shell
+   npx auth secret
+   ```
+
+   Copy the generated value into `AUTH_SECRET` in `.env.local`.
+
+4. Update `.env.local` with the required local values:
+
+   ```env
+   NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+   EMAIL_PUBLIC_BASE_URL=https://your-public-demo-url.example
+   EMAIL_IMAGE_BASE_URL=https://raw.githubusercontent.com/Mahmoudezzat00/Thesis/main/public
+   MONGODB_URI=mongodb://localhost/smartshop-thesis
+   AUTH_SECRET=your-generated-auth-secret
+   ```
+
+   The app can run locally with email/password authentication and Cash On
+   Delivery using only these required values. Google, Resend, Stripe, PayPal,
+   and UploadThing can be configured later.
+
+   `EMAIL_PUBLIC_BASE_URL` is only required if you want product images inside
+   sent emails to load correctly. Email clients cannot load images from
+   `localhost`, so use a deployed HTTPS URL or an HTTPS tunnel for email tests.
+   For seeded demo products, `EMAIL_IMAGE_BASE_URL` can point to the repository's
+   public image folder on GitHub.
+
+5. Make sure MongoDB is running, then seed the database:
 
    ```shell
    npm run seed
    ```
 
-5. Start the development server:
+6. Start the development server:
 
    ```shell
    npm run dev
    ```
 
-6. Open `http://localhost:3000`.
+7. Open the application:
+
+   ```text
+   http://localhost:3000
+   ```
+
+8. Sign in with the seeded admin account:
+
+   ```text
+   Email: admin@example.com
+   Password: 123456
+   ```
 
 ## Demo Accounts
 
@@ -83,6 +136,7 @@ Use seeded accounts only for development and demonstration. Production deploymen
 ## Scripts
 
 - `npm run dev` starts the development server.
+- `npm run dev:https` starts the development server with a self-signed HTTPS certificate for Stripe form testing.
 - `npm run build` builds the production app.
 - `npm run start` starts the production server.
 - `npm run seed` resets and seeds the database.
