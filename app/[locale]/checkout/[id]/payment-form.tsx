@@ -22,18 +22,28 @@ import StripeForm from './stripe-form'
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
-)
+const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+const stripePromise =
+  stripePublishableKey &&
+  !stripePublishableKey.includes('placeholder') &&
+  !stripePublishableKey.includes('dev_')
+    ? loadStripe(stripePublishableKey)
+    : null
 export default function OrderDetailsForm({
   order,
   paypalClientId,
   clientSecret,
+  paymentConfig,
 }: {
   order: IOrder
   paypalClientId: string
   isAdmin: boolean
   clientSecret: string | null
+  paymentConfig: {
+    isPayPalConfigured: boolean
+    isStripeConfigured: boolean
+    message: string
+  }
 }) {
   const router = useRouter()
   const {
@@ -62,13 +72,28 @@ export default function OrderDetailsForm({
     }
     return status
   }
+  const PaymentSetupNotice = ({ message }: { message: string }) => (
+    <div className='rounded-md border border-dashed p-3 text-sm text-muted-foreground'>
+      <p className='font-medium text-foreground'>Payment setup required</p>
+      <p className='mt-1'>{message}</p>
+      <Button
+        className='mt-3 w-full rounded-full'
+        variant='outline'
+        onClick={() => router.push(`/account/orders/${order._id}`)}
+      >
+        View order instead
+      </Button>
+    </div>
+  )
   const handleCreatePayPalOrder = async () => {
     const res = await createPayPalOrder(order._id)
-    if (!res.success)
-      return toast({
+    if (!res.success) {
+      toast({
         description: res.message,
         variant: 'destructive',
       })
+      throw new Error(res.message)
+    }
     return res.data
   }
   const handleApprovePayPalOrder = async (data: { orderID: string }) => {
@@ -77,6 +102,10 @@ export default function OrderDetailsForm({
       description: res.message,
       variant: res.success ? 'default' : 'destructive',
     })
+    if (res.success) {
+      router.refresh()
+      router.push(`/account/orders/${order._id}`)
+    }
   }
 
   const CheckoutSummary = () => (
@@ -122,18 +151,30 @@ export default function OrderDetailsForm({
               </span>
             </div>
 
-            {!isPaid && paymentMethod === 'PayPal' && (
+            {!isPaid && paymentMethod === 'PayPal' && paymentConfig.isPayPalConfigured && (
               <div>
                 <PayPalScriptProvider options={{ clientId: paypalClientId }}>
                   <PrintLoadingState />
                   <PayPalButtons
                     createOrder={handleCreatePayPalOrder}
                     onApprove={handleApprovePayPalOrder}
+                    onError={(error) =>
+                      toast({
+                        description:
+                          error instanceof Error
+                            ? error.message
+                            : 'PayPal payment failed.',
+                        variant: 'destructive',
+                      })
+                    }
                   />
                 </PayPalScriptProvider>
               </div>
             )}
-            {!isPaid && paymentMethod === 'Stripe' && clientSecret && (
+            {!isPaid && paymentMethod === 'PayPal' && !paymentConfig.isPayPalConfigured && (
+              <PaymentSetupNotice message='PayPal sandbox credentials are not configured. Add PAYPAL_CLIENT_ID and PAYPAL_APP_SECRET, or use Cash On Delivery for the demo.' />
+            )}
+            {!isPaid && paymentMethod === 'Stripe' && clientSecret && stripePromise && (
               <Elements
                 options={{
                   clientSecret,
@@ -145,6 +186,14 @@ export default function OrderDetailsForm({
                   orderId={order._id}
                 />
               </Elements>
+            )}
+            {!isPaid && paymentMethod === 'Stripe' && (!clientSecret || !stripePromise) && (
+              <PaymentSetupNotice
+                message={
+                  paymentConfig.message ||
+                  'Stripe test keys are not configured. Add STRIPE_SECRET_KEY and NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, or use Cash On Delivery for the demo.'
+                }
+              />
             )}
 
             {!isPaid && paymentMethod === 'Cash On Delivery' && (

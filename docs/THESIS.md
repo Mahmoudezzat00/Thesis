@@ -14,7 +14,7 @@ Small and medium-sized online stores often need more than a product catalog and 
 - Support customer and administrator roles with separate responsibilities.
 - Provide multilingual browsing for a wider audience.
 - Integrate payment, upload, and email service boundaries.
-- Add a commerce-intelligence module that summarizes product performance signals.
+- Add an admin commerce-intelligence module that summarizes product performance signals.
 - Prepare the system for future recommendation and inventory analysis features.
 
 ## Current Scope
@@ -28,12 +28,12 @@ The current implementation includes:
 - Stripe and PayPal payment integration points.
 - Email integration points for receipts and review reminders.
 - Seeded demonstration data.
-- Homepage Commerce Intelligence Snapshot.
+- Admin-only commerce intelligence and product-performance reporting.
 - Original SmartShop Thesis branding with a custom logo and blue analytics-focused theme.
 
 ## Original Thesis Contribution
 
-The first custom thesis-oriented feature is the Commerce Intelligence Snapshot. It aggregates live product data and presents:
+The first custom thesis-oriented feature is the admin commerce intelligence module. It aggregates live product data and presents:
 
 - number of published products,
 - sales-signal total,
@@ -42,7 +42,7 @@ The first custom thesis-oriented feature is the Commerce Intelligence Snapshot. 
 - top category,
 - top product signal.
 
-This creates a foundation for deeper thesis work, such as recommendation algorithms, stock-risk detection, product-performance scoring, and admin decision support.
+This information is intentionally limited to administrators because it contains operational performance and inventory signals. It creates a foundation for deeper thesis work, such as recommendation algorithms, stock-risk detection, product-performance scoring, and admin decision support.
 
 The second thesis-oriented feature is the Admin Product Intelligence page. It ranks products using an explainable performance score and highlights restock-risk signals. This makes the project more than a CRUD ecommerce store because administrators can use the system to reason about inventory and product strategy.
 

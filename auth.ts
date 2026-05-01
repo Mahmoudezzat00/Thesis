@@ -9,6 +9,10 @@ import User from './lib/db/models/user.model'
 import NextAuth, { type DefaultSession } from 'next-auth'
 import authConfig from './auth.config'
 
+const googleClientId = process.env.AUTH_GOOGLE_ID
+const googleClientSecret = process.env.AUTH_GOOGLE_SECRET
+const isGoogleConfigured = Boolean(googleClientId && googleClientSecret)
+
 declare module 'next-auth' {
   interface Session {
     user: {
@@ -30,9 +34,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   adapter: MongoDBAdapter(client),
   providers: [
-    Google({
-      allowDangerousEmailAccountLinking: true,
-    }),
+    ...(isGoogleConfigured
+      ? [
+          Google({
+            clientId: googleClientId,
+            clientSecret: googleClientSecret,
+            allowDangerousEmailAccountLinking: true,
+          }),
+        ]
+      : []),
     CredentialsProvider({
       credentials: {
         email: {
@@ -67,15 +77,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     jwt: async ({ token, user, trigger, session }) => {
       if (user) {
-        if (!user.name) {
-          await connectToDatabase()
-          await User.findByIdAndUpdate(user.id, {
-            name: user.name || user.email!.split('@')[0],
-            role: 'user',
-          })
-        }
-        token.name = user.name || user.email!.split('@')[0]
-        token.role = (user as { role: string }).role
+        await connectToDatabase()
+
+        const email = user.email || token.email
+        const fallbackName = user.name || email?.split('@')[0] || 'Customer'
+        const role = (user as { role?: string }).role
+
+        const dbUser = email
+          ? await User.findOneAndUpdate(
+              { email },
+              {
+                $set: {
+                  name: fallbackName,
+                  image: user.image,
+                },
+                $setOnInsert: {
+                  email,
+                  role: role || 'User',
+                },
+              },
+              { new: true, upsert: true }
+            )
+          : user.id
+            ? await User.findById(user.id)
+            : null
+
+        token.name = dbUser?.name || fallbackName
+        token.role = dbUser?.role || role || 'User'
       }
 
       if (session?.user?.name && trigger === 'update') {

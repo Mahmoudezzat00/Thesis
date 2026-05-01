@@ -1,5 +1,4 @@
 import BrowsingHistoryList from '@/components/shared/browsing-history-list'
-import CommerceInsights from '@/components/shared/home/commerce-insights'
 import { HomeCard } from '@/components/shared/home/home-card'
 import { HomeCarousel } from '@/components/shared/home/home-carousel'
 import SmartRecommendations from '@/components/shared/home/smart-recommendations'
@@ -10,7 +9,6 @@ import {
   getProductsForCard,
   getProductsByTag,
   getAllCategories,
-  getCommerceInsightSummary,
 } from '@/lib/actions/product.actions'
 import { getSetting } from '@/lib/actions/setting.actions'
 import { toSlug } from '@/lib/utils'
@@ -21,7 +19,6 @@ export default async function HomePage() {
   const { carousels } = await getSetting()
   const todaysDeals = await getProductsByTag({ tag: 'todays-deal' })
   const bestSellingProducts = await getProductsByTag({ tag: 'best-seller' })
-  const commerceInsightSummary = await getCommerceInsightSummary()
 
   const categories = (await getAllCategories()).slice(0, 4)
   const newArrivals = await getProductsForCard({
@@ -75,7 +72,6 @@ export default async function HomePage() {
   return (
     <>
       <HomeCarousel items={carousels} />
-      <CommerceInsights summary={commerceInsightSummary} />
       <SmartRecommendations />
       <div className='md:p-4 md:space-y-4 bg-border'>
         <HomeCard cards={cards} />

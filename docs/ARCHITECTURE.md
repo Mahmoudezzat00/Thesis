@@ -45,9 +45,9 @@ Key collections include:
 - **Setting:** site, currency, payment, delivery, and theme settings.
 - **WebPage:** editable content pages such as help, privacy, and policies.
 
-## Thesis Feature: Commerce Intelligence Snapshot
+## Thesis Feature: Admin Commerce Intelligence
 
-The homepage includes a server-rendered analytics module powered by `getCommerceInsightSummary` in `lib/actions/product.actions.ts`. It aggregates product data from MongoDB and displays operational metrics that can later support deeper analytics and recommendation features.
+The admin area includes analytics and intelligence modules powered by product and order data in MongoDB. Operational metrics are kept behind the admin role boundary because they expose product performance, sales, and inventory signals.
 
 ## Thesis Feature: Product Intelligence
 

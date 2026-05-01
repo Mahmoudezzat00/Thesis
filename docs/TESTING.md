@@ -4,7 +4,7 @@
 
 ### Storefront
 
-- Open the home page and confirm carousel, categories, product sections, and Commerce Intelligence Snapshot load.
+- Open the home page and confirm carousel, categories, product sections, and Smart Recommendations load.
 - Visit product detail pages, return home, and confirm Smart Recommendations adapt to browsing history.
 - Search for a product by keyword.
 - Filter products by category, rating, price, and tag.
@@ -17,6 +17,11 @@
 - Sign up as a new user in development mode.
 - Sign out and confirm protected account/admin pages are inaccessible.
 
+### Admin
+
+- Sign in with the seeded admin account and confirm `/admin/intelligence` loads product-performance and restock-risk metrics.
+- Sign in as a non-admin user and confirm admin routes are blocked.
+
 ### Cart and Checkout
 
 - Add multiple products to the cart.
@@ -25,6 +30,7 @@
 - Continue to checkout.
 - Verify shipping form validation.
 - Verify payment method selection.
+- Confirm missing Stripe/PayPal sandbox keys show a setup notice instead of crashing.
 
 ### Admin
 
@@ -42,6 +48,7 @@
 - Confirm homepage metrics change when product sales, stock, or published status changes.
 - Confirm Product Intelligence scores change when product sales, review counts, ratings, or stock values change.
 - Confirm recommendation scores change when browsing-history categories change.
+- Confirm Stripe and PayPal pages remain stable when payment keys are missing.
 
 ## Automated Testing Backlog
 

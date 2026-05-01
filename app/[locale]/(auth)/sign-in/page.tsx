@@ -24,6 +24,9 @@ export default async function SignInPage(props: {
   const { site } = await getSetting()
 
   const { callbackUrl = '/' } = searchParams
+  const isGoogleConfigured = Boolean(
+    process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
+  )
 
   const session = await auth()
   if (session) {
@@ -41,7 +44,10 @@ export default async function SignInPage(props: {
             <CredentialsSignInForm />
             <SeparatorWithOr />
             <div className='mt-4'>
-              <GoogleSignInForm />
+              <GoogleSignInForm
+                callbackUrl={callbackUrl}
+                enabled={isGoogleConfigured}
+              />
             </div>
           </div>
         </CardContent>

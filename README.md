@@ -74,8 +74,10 @@ Use seeded accounts only for development and demonstration. Production deploymen
 - [Thesis Overview](./docs/THESIS.md)
 - [System Architecture](./docs/ARCHITECTURE.md)
 - [Brand Identity](./docs/BRANDING.md)
+- [Google Sign-In Setup](./docs/GOOGLE_AUTH.md)
 - [Product Intelligence Method](./docs/PRODUCT_INTELLIGENCE.md)
 - [Recommendation Method](./docs/RECOMMENDATIONS.md)
+- [Payment Demo Setup](./docs/PAYMENTS.md)
 - [Testing Plan](./docs/TESTING.md)
 
 ## Scripts

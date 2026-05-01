@@ -1,5 +1,14 @@
 const base = process.env.PAYPAL_API_URL || 'https://api-m.sandbox.paypal.com'
 
+const hasUsableCredential = (value?: string) =>
+  Boolean(
+    value &&
+      value.trim() &&
+      value !== 'sb' &&
+      !value.includes('placeholder') &&
+      !value.includes('dev_')
+  )
+
 export const paypal = {
   createOrder: async function createOrder(price: number) {
     const accessToken = await generateAccessToken()
@@ -16,7 +25,7 @@ export const paypal = {
           {
             amount: {
               currency_code: 'USD',
-              value: price,
+              value: price.toFixed(2),
             },
           },
         ],
@@ -41,6 +50,13 @@ export const paypal = {
 
 async function generateAccessToken() {
   const { PAYPAL_CLIENT_ID, PAYPAL_APP_SECRET } = process.env
+  if (
+    !hasUsableCredential(PAYPAL_CLIENT_ID) ||
+    !hasUsableCredential(PAYPAL_APP_SECRET)
+  ) {
+    throw new Error('PayPal sandbox credentials are not configured.')
+  }
+
   const auth = Buffer.from(PAYPAL_CLIENT_ID + ':' + PAYPAL_APP_SECRET).toString(
     'base64'
   )
@@ -63,5 +79,5 @@ async function handleResponse(response: any) {
   }
 
   const errorMessage = await response.text()
-  throw new Error(errorMessage)
+  throw new Error(errorMessage || `PayPal request failed: ${response.status}`)
 }

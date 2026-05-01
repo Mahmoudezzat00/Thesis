@@ -60,6 +60,7 @@ export default async function AppLayout({
     >
       <body
         className={`min-h-screen ${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ClientProviders setting={{ ...setting, currency }}>

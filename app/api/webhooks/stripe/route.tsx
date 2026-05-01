@@ -1,45 +1,81 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-import { sendPurchaseReceipt } from '@/emails'
-import Order from '@/lib/db/models/order.model'
+import { updateOrderToPaidByStripe } from '@/lib/actions/order.actions'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+  : null
 
 export async function POST(req: NextRequest) {
-  const event = await stripe.webhooks.constructEvent(
-    await req.text(),
-    req.headers.get('stripe-signature') as string,
-    process.env.STRIPE_WEBHOOK_SECRET as string
-  )
+  if (!stripe || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return new NextResponse('Stripe webhook is not configured', { status: 500 })
+  }
 
-  if (event.type === 'charge.succeeded') {
-    const charge = event.data.object
-    const orderId = charge.metadata.orderId
-    const email = charge.billing_details.email
-    const pricePaidInCents = charge.amount
-    const order = await Order.findById(orderId).populate('user', 'email')
-    if (order == null) {
-      return new NextResponse('Bad Request', { status: 400 })
+  let event: Stripe.Event
+  try {
+    event = await stripe.webhooks.constructEvent(
+      await req.text(),
+      req.headers.get('stripe-signature') as string,
+      process.env.STRIPE_WEBHOOK_SECRET
+    )
+  } catch (error) {
+    return new NextResponse(
+      error instanceof Error ? error.message : 'Invalid Stripe webhook',
+      { status: 400 }
+    )
+  }
+
+  if (event.type === 'payment_intent.succeeded') {
+    const paymentIntent = event.data.object
+    const orderId = paymentIntent.metadata.orderId
+    if (!orderId) {
+      return new NextResponse('Missing orderId metadata', { status: 400 })
     }
 
-    order.isPaid = true
-    order.paidAt = new Date()
-    order.paymentResult = {
-      id: event.id,
-      status: 'COMPLETED',
-      email_address: email!,
-      pricePaid: (pricePaidInCents / 100).toFixed(2),
-    }
-    await order.save()
-    try {
-      await sendPurchaseReceipt({ order })
-    } catch (err) {
-      console.log('email error', err)
-    }
+    const result = await updateOrderToPaidByStripe(orderId, {
+      id: paymentIntent.id,
+      status: paymentIntent.status,
+      email_address: paymentIntent.receipt_email || '',
+      pricePaid: (paymentIntent.amount_received / 100).toFixed(2),
+    })
+    if (!result.success) return new NextResponse(result.message, { status: 400 })
+
     return NextResponse.json({
       message: 'updateOrderToPaid was successful',
     })
   }
+
+  if (event.type === 'charge.succeeded') {
+    const charge = event.data.object
+    let orderId = charge.metadata.orderId
+
+    if (!orderId && typeof charge.payment_intent === 'string') {
+      const paymentIntent = await stripe.paymentIntents.retrieve(
+        charge.payment_intent
+      )
+      orderId = paymentIntent.metadata.orderId
+    }
+
+    if (!orderId) {
+      return new NextResponse('Missing orderId metadata', { status: 400 })
+    }
+
+    const result = await updateOrderToPaidByStripe(orderId, {
+      id:
+        typeof charge.payment_intent === 'string'
+          ? charge.payment_intent
+          : charge.id,
+      status: charge.status,
+      email_address: charge.billing_details.email || '',
+      pricePaid: (charge.amount / 100).toFixed(2),
+    })
+    if (!result.success) return new NextResponse(result.message, { status: 400 })
+
+    return NextResponse.json({
+      message: 'updateOrderToPaid was successful',
+    })
+  }
+
   return new NextResponse()
 }

@@ -7,14 +7,19 @@ NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 MONGODB_URI=mongodb://localhost/smartshop-thesis
  
 
-# $ npx auth secret
+# Auth
+# Generate AUTH_SECRET with: npx auth secret
 AUTH_SECRET=
+# Google OAuth redirect URI: http://localhost:3000/api/auth/callback/google
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
 
 RESEND_API_KEY=
 SENDER_NAME=SmartShop Thesis
 SENDER_EMAIL=
+# Optional: while using onboarding@resend.dev, route all emails to the single
+# recipient Resend allows before you verify a sending domain.
+RESEND_DEMO_RECIPIENT=
 
 # UPLOADTHING
 UPLOADTHING_TOKEN=

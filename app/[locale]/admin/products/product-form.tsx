@@ -29,12 +29,12 @@ import { IProductInput } from '@/types'
 const productDefaultValues: IProductInput =
   process.env.NODE_ENV === 'development'
     ? {
-        name: 'Sample Product',
-        slug: 'sample-product',
-        category: 'Sample Category',
+        name: 'SmartShop Demo Product',
+        slug: 'smartshop-demo-product',
+        category: 'T-Shirts',
         images: ['/images/p11-1.jpg'],
-        brand: 'Sample Brand',
-        description: 'This is a sample description of the product.',
+        brand: 'SmartShop',
+        description: 'A demo product for testing the admin product workflow.',
         price: 99.99,
         listPrice: 0,
         countInStock: 15,

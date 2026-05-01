@@ -7,7 +7,11 @@ import { auth } from '@/auth'
 import { OrderInputSchema } from '../validator'
 import Order, { IOrder } from '../db/models/order.model'
 import { revalidatePath } from 'next/cache'
-import { sendAskReviewOrderItems, sendPurchaseReceipt } from '@/emails'
+import {
+  sendAskReviewOrderItems,
+  sendOrderConfirmation,
+  sendPurchaseReceipt,
+} from '@/emails'
 import { paypal } from '../paypal'
 import { DateRange } from 'react-day-picker'
 import Product from '../db/models/product.model'
@@ -26,6 +30,18 @@ export const createOrder = async (clientSideCart: Cart) => {
       clientSideCart,
       session.user.id!
     )
+    await createdOrder.populate<{ user: { email: string; name: string } }>(
+      'user',
+      'name email'
+    )
+    try {
+      const orderUser = createdOrder.user as { email?: string }
+      if (orderUser.email) {
+        await sendOrderConfirmation({ order: createdOrder })
+      }
+    } catch (emailError) {
+      console.log('order confirmation email error', emailError)
+    }
     return {
       success: true,
       message: 'Order placed successfully',
@@ -75,7 +91,57 @@ export async function updateOrderToPaid(orderId: string) {
     await order.save()
     if (!process.env.MONGODB_URI?.startsWith('mongodb://localhost'))
       await updateProductStock(order._id)
-    if (order.user.email) await sendPurchaseReceipt({ order })
+    try {
+      if (order.user.email) await sendPurchaseReceipt({ order })
+    } catch (emailError) {
+      console.log('purchase receipt email error', emailError)
+    }
+    revalidatePath(`/account/orders/${orderId}`)
+    return { success: true, message: 'Order paid successfully' }
+  } catch (err) {
+    return { success: false, message: formatError(err) }
+  }
+}
+
+export async function updateOrderToPaidByStripe(
+  orderId: string,
+  paymentResult: {
+    id: string
+    status: string
+    email_address?: string | null
+    pricePaid: string
+  }
+) {
+  try {
+    await connectToDatabase()
+    const order = await Order.findById(orderId).populate<{
+      user: { email: string; name: string }
+    }>('user', 'name email')
+    if (!order) throw new Error('Order not found')
+    const wasPaid = order.isPaid
+
+    if (!order.isPaid) {
+      order.isPaid = true
+      order.paidAt = new Date()
+    }
+
+    order.paymentResult = {
+      id: paymentResult.id,
+      status: paymentResult.status,
+      email_address: paymentResult.email_address || order.user.email || '',
+      pricePaid: paymentResult.pricePaid,
+    }
+
+    await order.save()
+    if (!wasPaid && !process.env.MONGODB_URI?.startsWith('mongodb://localhost'))
+      await updateProductStock(order._id)
+
+    try {
+      if (!wasPaid && order.user.email) await sendPurchaseReceipt({ order })
+    } catch (emailError) {
+      console.log('purchase receipt email error', emailError)
+    }
+
     revalidatePath(`/account/orders/${orderId}`)
     return { success: true, message: 'Order paid successfully' }
   } catch (err) {
@@ -247,6 +313,12 @@ export async function approvePayPalOrder(
   try {
     const order = await Order.findById(orderId).populate('user', 'email')
     if (!order) throw new Error('Order not found')
+    if (order.isPaid) {
+      return {
+        success: true,
+        message: 'Order is already paid',
+      }
+    }
 
     const captureData = await paypal.capturePayment(data.orderID)
     if (
@@ -260,12 +332,18 @@ export async function approvePayPalOrder(
     order.paymentResult = {
       id: captureData.id,
       status: captureData.status,
-      email_address: captureData.payer.email_address,
+      email_address: captureData.payer?.email_address || '',
       pricePaid:
         captureData.purchase_units[0]?.payments?.captures[0]?.amount?.value,
     }
     await order.save()
-    await sendPurchaseReceipt({ order })
+    if (!process.env.MONGODB_URI?.startsWith('mongodb://localhost'))
+      await updateProductStock(order._id)
+    try {
+      await sendPurchaseReceipt({ order })
+    } catch (emailError) {
+      console.log('purchase receipt email error', emailError)
+    }
     revalidatePath(`/account/orders/${orderId}`)
     return {
       success: true,
