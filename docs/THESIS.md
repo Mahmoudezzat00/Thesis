@@ -149,6 +149,26 @@ The third thesis-oriented feature is Smart Recommendations. It uses local browsi
 - How can product ratings, stock, and sales history support recommendation or inventory decisions?
 - How does multilingual support affect ecommerce accessibility and usability?
 
+## Testing Plan
+
+The project testing strategy combines automated coverage with manual verification of the main ecommerce workflows. Automated tests are organized under the project-level `__tests__` directory and cover cart-store hooks, device-detection helpers, utility functions, validators, selected order/product/user actions, and integration-style shopping-cart and validation flows.
+
+The automated setup includes `jest.config.ts`, `jest.setup.ts`, a short `__tests__/README.md`, and npm scripts for running Jest. This makes testing a deliberate part of the codebase and allows future changes to checkout, authentication, product management, and administrator workflows to be checked repeatedly.
+
+The current automated suite was executed locally with `npm test -- --runInBand`. The result was 12 passing test suites and 208 passing tests.
+
+Manual verification focuses on the workflows most visible to end users and administrators:
+
+- home page, search, filtering, recommendations, and product-detail rendering;
+- sign-in, sign-up, Google OAuth, and sign-out behavior;
+- cart persistence, shipping validation, payment-method selection, and checkout steps;
+- order creation, order detail pages, and account-order display;
+- receipt email delivery when Resend is configured;
+- Stripe test/demo payment and PayPal sandbox/demo payment confirmation;
+- administrator dashboard, commerce intelligence, products, orders, users, pages, and settings screens.
+
+The detailed checklist is maintained in `docs/TESTING.md`.
+
 ## Future Work
 
 - Personalized recommendations that also use order history.
